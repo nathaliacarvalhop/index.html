@@ -257,7 +257,6 @@ select { appearance: none; cursor: pointer; }
 .badge.source { border-color: var(--border-strong); text-transform: uppercase; font-size: 10.5px; letter-spacing: .06em; padding: 2px 6px; }
 .badge.source::before { display: none; }
 
-/* Status switcher inline */
 .status-switch {
   display: inline-flex;
   gap: 2px;
@@ -390,7 +389,6 @@ select { appearance: none; cursor: pointer; }
 .import-help ol { margin: 8px 0 0 18px; }
 .import-help li { margin-bottom: 3px; }
 
-/* ===== Drive / Anexos ===== */
 .attach-tabs {
   display: inline-flex; gap: 3px; margin-bottom: 14px;
   border: 1px solid var(--border); padding: 3px; border-radius: var(--radius);
@@ -477,16 +475,7 @@ select { appearance: none; cursor: pointer; }
 }
 .attach-item .attach-del:hover { background: rgba(220,38,38,.9); }
 .attach-item a { position: absolute; inset: 0; }
-.attach-empty {
-  padding: 18px; text-align: center;
-  font-size: 12.5px; color: var(--text-soft);
-  background: var(--bg-subtle);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-sm);
-  margin-top: 12px;
-}
 
-/* ===== Drive view (galeria por artigo) ===== */
 .drive-group {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -514,6 +503,66 @@ select { appearance: none; cursor: pointer; }
   border-radius: 10px;
   font-weight: 500;
 }
+
+/* ===== Configurações / Backup ===== */
+.settings-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+.settings-item-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.settings-item-title { font-size: 13.5px; font-weight: 600; }
+.settings-item-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+
+.backup-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.backup-stat {
+  padding: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+.backup-stat strong { display: block; font-size: 18px; font-weight: 600; margin-bottom: 3px; letter-spacing: -.3px; }
+.backup-stat span { color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em; font-weight: 500; }
+
+.file-input-hidden { display: none; }
+
+.radio-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.radio-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .15s;
+}
+.radio-item:hover { border-color: var(--border-strong); background: var(--bg-subtle); }
+.radio-item input[type="radio"] { margin-top: 3px; accent-color: var(--text); }
+.radio-item-body { flex: 1; }
+.radio-item-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.radio-item-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+.progress-import {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  display: none;
+}
+.progress-import.active { display: block; }
 
 .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .flex-between { display:flex; justify-content:space-between; align-items:center; gap:12px; }
@@ -568,6 +617,7 @@ select { appearance: none; cursor: pointer; }
   <button data-view="anotacoes">Anotações</button>
   <button data-view="estatisticas">Estatísticas</button>
   <button data-view="bibliografia">Bibliografia</button>
+  <button data-view="config">Configurações</button>
 </nav>
 
 <main>
@@ -590,8 +640,8 @@ select { appearance: none; cursor: pointer; }
         <p class="muted" style="font-size:13.5px;">Anexe prints, vídeos, PDFs e links a cada artigo — assim você preserva a prova mesmo se o post original for excluído.</p>
       </div>
       <div class="card">
-        <div class="card-title">Meta sugerida</div>
-        <p class="muted" style="font-size:13.5px;">Concluir ao menos cinco artigos por semana e gerar a bibliografia ao final.</p>
+        <div class="card-title">Backup</div>
+        <p class="muted" style="font-size:13.5px;">Em Configurações você pode exportar um arquivo com tudo (dados + anexos) e restaurar em qualquer navegador.</p>
       </div>
     </div>
   </div>
@@ -847,6 +897,69 @@ select { appearance: none; cursor: pointer; }
   </div>
 </section>
 
+<section class="view" id="view-config">
+  <div class="page-head">
+    <h1>Configurações</h1>
+    <p>Backup, restauração e gerenciamento dos seus dados.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Backup completo</div>
+
+    <div class="settings-item">
+      <div class="settings-item-head">
+        <div class="settings-item-title">Exportar backup</div>
+        <button class="btn" onclick="exportBackup()">Exportar .json</button>
+      </div>
+      <div class="settings-item-desc">
+        Baixa um único arquivo <code>.json</code> com todos os seus artigos, links, anotações, tema atual <strong>e todos os anexos</strong> (fotos, vídeos, PDFs) incorporados em base64. Guarde esse arquivo no Google Drive, OneDrive, pen drive ou junto do código no Git.
+      </div>
+      <div class="backup-stats" id="backupStats"></div>
+    </div>
+
+    <div class="settings-item">
+      <div class="settings-item-head">
+        <div class="settings-item-title">Importar backup</div>
+        <button class="btn secondary" onclick="document.getElementById('backupFileInput').click()">Selecionar arquivo</button>
+        <input type="file" id="backupFileInput" accept=".json,application/json" class="file-input-hidden">
+      </div>
+      <div class="settings-item-desc">
+        Carregue um arquivo de backup gerado anteriormente. Você poderá escolher se quer <strong>substituir</strong> os dados atuais ou <strong>mesclar</strong> com os existentes.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Dados no navegador</div>
+    <div class="settings-item">
+      <div class="settings-item-head">
+        <div class="settings-item-title">Apagar todos os dados</div>
+        <button class="btn danger" onclick="wipeAllData()">Apagar tudo</button>
+      </div>
+      <div class="settings-item-desc">
+        Remove <strong>permanentemente</strong> artigos, links, anotações e anexos deste navegador. Ação irreversível — faça um backup antes.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Sobre o armazenamento</div>
+    <div class="card">
+      <p class="muted" style="font-size:13px; line-height:1.7;">
+        Este site não usa servidor nem banco de dados externo. Os dados são guardados no próprio navegador:
+      </p>
+      <ul class="muted" style="font-size:13px; line-height:1.9; margin-left:20px; margin-top:8px;">
+        <li><strong style="color:var(--text);">localStorage</strong> — artigos, links e anotações (dados de texto). Limite ~5 MB.</li>
+        <li><strong style="color:var(--text);">IndexedDB</strong> — anexos (fotos, vídeos, PDFs). Limite ~50% do espaço livre do disco.</li>
+        <li><strong style="color:var(--text);">localStorage</strong> — também guarda a preferência de tema (claro/escuro).</li>
+      </ul>
+      <p class="muted" style="font-size:13px; line-height:1.7; margin-top:12px;">
+        <strong style="color:var(--text);">Atenção:</strong> limpar "dados de sites" ou "cache" do navegador apaga tudo. Abrir o site por uma URL diferente (ex.: <code>file:///</code> vs <code>https://</code>) também cria um espaço de dados separado. Use o backup para migrar entre ambientes.
+      </p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!-- Modal Artigo -->
@@ -944,6 +1057,38 @@ select { appearance: none; cursor: pointer; }
   </div>
 </div>
 
+<!-- Modal Importar Backup -->
+<div class="overlay" id="importBackupModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Importar backup</h2>
+    </div>
+    <div class="import-help" id="importBackupInfo"></div>
+    <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">Como você quer aplicar os dados do backup?</p>
+    <div class="radio-group">
+      <label class="radio-item">
+        <input type="radio" name="importMode" value="merge" checked>
+        <div class="radio-item-body">
+          <div class="radio-item-title">Mesclar com os dados atuais</div>
+          <div class="radio-item-desc">Mantém tudo o que já existe e adiciona os itens do backup. Se houver duplicados (mesmo título e autor), os atuais são mantidos.</div>
+        </div>
+      </label>
+      <label class="radio-item">
+        <input type="radio" name="importMode" value="replace">
+        <div class="radio-item-body">
+          <div class="radio-item-title">Substituir tudo</div>
+          <div class="radio-item-desc">Apaga todos os dados atuais deste navegador e restaura apenas o que está no backup. Ação irreversível.</div>
+        </div>
+      </label>
+    </div>
+    <div class="progress-import" id="importProgress">Processando...</div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeImportBackup()">Cancelar</button>
+      <button class="btn" onclick="confirmImportBackup()">Importar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
 'use strict';
@@ -972,8 +1117,8 @@ var state = {
 var currentReaderTab = 'todo';
 var readerFontSize = 15;
 
-// Buffer de anexos em construção (antes de salvar o artigo)
 var pendingAttachments = { import: [], modal: [] };
+var pendingBackup = null;
 
 function persist() {
   localStorage.setItem('dh_articles', JSON.stringify(state.articles));
@@ -998,11 +1143,12 @@ function fmtDate(iso) {
 function fmtSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
 }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
-/* ============ INDEXEDDB (anexos) ============ */
+/* ============ INDEXEDDB ============ */
 var DB_NAME = 'datahub_drive';
 var DB_VERSION = 1;
 var STORE = 'attachments';
@@ -1064,6 +1210,16 @@ function dbAll() {
     });
   });
 }
+function dbClear() {
+  return openDB().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).clear();
+      tx.oncomplete = function () { resolve(); };
+      tx.onerror = function () { reject(tx.error); };
+    });
+  });
+}
 
 /* ============ NAVEGAÇÃO ============ */
 function showView(name) {
@@ -1081,7 +1237,7 @@ function showView(name) {
   window.scrollTo(0, 0);
 }
 
-/* ============ ANEXOS - helpers ============ */
+/* ============ ANEXOS ============ */
 function switchAttachTab(scope, which) {
   var up = document.getElementById('attach-' + scope + '-upload');
   var ur = document.getElementById('attach-' + scope + '-url');
@@ -1100,7 +1256,6 @@ function switchAttachTab(scope, which) {
     tabUp.classList.remove('active');
   }
 }
-
 function getPending(scope) { return pendingAttachments[scope] || []; }
 function setPending(scope, arr) { pendingAttachments[scope] = arr; }
 
@@ -1206,13 +1361,11 @@ function renderPendingAttachments(scope) {
   el.innerHTML = html;
 }
 
-/* ============ PREVIEW do modal de artigo (anexos existentes) ============ */
-var editingAttachments = []; // anexos atuais do artigo em edição
+var editingAttachments = [];
 
 function renderEditingAttachments() {
   var el = document.getElementById('attachPreviewModal');
   if (!el) return;
-  // Junta anexos existentes + pendentes novos
   var arr = editingAttachments.concat(getPending('modal'));
   if (!arr.length) { el.innerHTML = ''; return; }
   var html = '';
@@ -1236,22 +1389,18 @@ function renderEditingAttachments() {
 }
 
 function removeEditingAttachment(id) {
-  // Se é um anexo já salvo no IndexedDB, deleta
   var wasSaved = false;
   for (var i = 0; i < editingAttachments.length; i++) {
     if (editingAttachments[i].id === id) { wasSaved = true; break; }
   }
   editingAttachments = editingAttachments.filter(function (a) { return a.id !== id; });
-  if (wasSaved && !id.startsWith('new_')) {
+  if (wasSaved) {
     dbDelete(id).catch(function () {});
   }
-  // Remove dos pendentes também
   var pend = getPending('modal');
   var found = false;
   for (var j = 0; j < pend.length; j++) if (pend[j].id === id) { found = true; break; }
-  if (found) {
-    setPending('modal', pend.filter(function (a) { return a.id !== id; }));
-  }
+  if (found) setPending('modal', pend.filter(function (a) { return a.id !== id; }));
   renderEditingAttachments();
 }
 
@@ -1280,7 +1429,6 @@ function openArticleModal(id) {
     $('articleCategory').value = a.category || '';
     $('articleContent').value = a.content || '';
 
-    // Carrega anexos do IndexedDB
     if (a.attachmentIds && a.attachmentIds.length) {
       var promises = a.attachmentIds.map(function (aid) { return dbGet(aid).catch(function () { return null; }); });
       Promise.all(promises).then(function (list) {
@@ -1327,7 +1475,6 @@ function saveArticle() {
   var existingIds = editingAttachments.map(function (a) { return a.id; });
   var newIds = [];
 
-  // Salva novos anexos no IndexedDB
   var savePromises = pending.map(function (att) {
     var rec = {
       id: att.id,
@@ -1661,7 +1808,6 @@ function renderDrive() {
     return;
   }
 
-  // Carrega anexos do IndexedDB em paralelo
   var allPromises = withAttachments.map(function (a) {
     var ps = (a.attachmentIds || []).map(function (aid) {
       return dbGet(aid).catch(function () { return null; });
@@ -1677,7 +1823,6 @@ function renderDrive() {
       var art = groups[g].article;
       var atts = groups[g].attachments;
 
-      // Aplica filtro por tipo + busca
       var filtered = [];
       for (var k = 0; k < atts.length; k++) {
         var att = atts[k];
@@ -1689,7 +1834,6 @@ function renderDrive() {
         filtered.push(att);
       }
 
-      // Se filtro de tipo ativo e nenhum bate, esconde o grupo
       if ((filterType || search) && !filtered.length) continue;
       if (!filtered.length) filtered = atts;
 
@@ -1730,7 +1874,6 @@ function attachmentsGridHTML(atts) {
     else if (a.type === 'link') inner = '<div class="file-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>' + esc(a.name) + '</span></div>';
     else inner = '<div class="file-icon"><span>' + esc(a.name) + '</span></div>';
 
-    var linkHref = a.url || a.blob;
     var openAttr = '';
     if (a.type === 'link') {
       openAttr = 'href="' + esc(a.url) + '" target="_blank" rel="noopener"';
@@ -1751,9 +1894,7 @@ function attachmentsGridHTML(atts) {
 
 function deleteAttachment(id) {
   if (!confirm('Excluir este anexo permanentemente?')) return;
-  // Remove do IndexedDB
   dbDelete(id).catch(function () {});
-  // Remove da lista de attachmentIds do artigo
   for (var i = 0; i < state.articles.length; i++) {
     var a = state.articles[i];
     if (a.attachmentIds && a.attachmentIds.indexOf(id) !== -1) {
@@ -1777,46 +1918,10 @@ function dataUrlToBlob(dataUrl) {
   } catch (e) { return null; }
 }
 
-/* Gera um ZIP simples (sem compressão) para "baixar tudo" de um artigo */
-function downloadAllAttachments(articleId) {
-  var art = null;
-  for (var i = 0; i < state.articles.length; i++) {
-    if (state.articles[i].id === articleId) { art = state.articles[i]; break; }
-  }
-  if (!art || !art.attachmentIds || !art.attachmentIds.length) {
-    alert('Nenhum anexo para baixar.');
-    return;
-  }
-
-  var promises = art.attachmentIds.map(function (id) { return dbGet(id).catch(function () { return null; }); });
-  Promise.all(promises).then(function (atts) {
-    atts = atts.filter(Boolean);
-    var files = [];
-    for (var i = 0; i < atts.length; i++) {
-      var a = atts[i];
-      if (a.isLink || a.type === 'link') {
-        files.push({ name: safeName(a.name) + '.url.txt', content: a.url || '' });
-      } else if (a.blob && a.blob.indexOf('data:') === 0) {
-        var blob = dataUrlToBlob(a.blob);
-        if (blob) files.push({ name: safeName(a.name || ('anexo_' + i)), blob: blob });
-      }
-    }
-    if (!files.length) { alert('Nenhum arquivo válido para baixar.'); return; }
-    var blob = buildZip(files);
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement('a');
-    link.href = url;
-    link.download = safeName(art.title || 'artigo') + '_evidencias.zip';
-    link.click();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
-  });
-}
-
 function safeName(s) {
   return (s || 'arquivo').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 80);
 }
 
-/* ZIP minimalista (store, sem compressão) */
 function buildZip(files) {
   var chunks = [];
   var central = [];
@@ -1836,17 +1941,7 @@ function buildZip(files) {
   for (var i = 0; i < files.length; i++) {
     var f = files[i];
     var nameBytes = encoder.encode(f.name);
-    var contentBytes;
-    if (f.blob) {
-      // Converte Blob em Uint8Array de forma síncrona via dataURL → não é ideal mas evita async
-      // Aqui vamos ler o blob de forma síncrona impossível, então usamos FileReaderSync não disponível.
-      // Estratégia: como blob é pequeno e já temos o dataURL salvo, vamos tratar como string base64.
-      // Isso é chamado dentro de um Promise resolve, então pode-se usar await aqui. Como o buildZip não é async,
-      // usamos a técnica de empacotar base64 convertida previamente.
-      contentBytes = f.bytes;
-    } else {
-      contentBytes = encoder.encode(f.content || '');
-    }
+    var contentBytes = f.bytes || encoder.encode(f.content || '');
     var nameLen = nameBytes.length;
     var dataLen = contentBytes.length;
     var crc = crc32(contentBytes);
@@ -1914,6 +2009,49 @@ function buildZip(files) {
   all.push(eocd);
 
   return new Blob(all, { type: 'application/zip' });
+}
+
+function downloadAllAttachments(articleId) {
+  var art = null;
+  for (var i = 0; i < state.articles.length; i++) {
+    if (state.articles[i].id === articleId) { art = state.articles[i]; break; }
+  }
+  if (!art || !art.attachmentIds || !art.attachmentIds.length) {
+    alert('Nenhum anexo para baixar.');
+    return;
+  }
+
+  var promises = art.attachmentIds.map(function (id) { return dbGet(id).catch(function () { return null; }); });
+  Promise.all(promises).then(function (atts) {
+    atts = atts.filter(Boolean);
+    var files = [];
+    for (var i = 0; i < atts.length; i++) {
+      var a = atts[i];
+      if (a.isLink || a.type === 'link') {
+        var enc = new TextEncoder();
+        files.push({ name: safeName(a.name) + '.url.txt', bytes: enc.encode(a.url || '') });
+      } else if (a.blob && a.blob.indexOf('data:') === 0) {
+        var blob = dataUrlToBlob(a.blob);
+        if (blob) {
+          // Converte blob em bytes de forma síncrona via dataURL base64 novamente
+          var parts = a.blob.split(',');
+          var bstr = atob(parts[1]);
+          var n = bstr.length;
+          var u8 = new Uint8Array(n);
+          while (n--) u8[n] = bstr.charCodeAt(n);
+          files.push({ name: safeName(a.name || ('anexo_' + i)), bytes: u8 });
+        }
+      }
+    }
+    if (!files.length) { alert('Nenhum arquivo válido para baixar.'); return; }
+    var blob = buildZip(files);
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = safeName(art.title || 'artigo') + '_evidencias.zip';
+    link.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+  });
 }
 
 /* ============ LEITURA ============ */
@@ -1984,7 +2122,6 @@ function openReader(id) {
   rc.innerHTML = meta + body;
   rc.style.fontSize = readerFontSize + 'px';
 
-  // Anexos
   var attEl = document.getElementById('readerAttachments');
   attEl.innerHTML = '';
   if (a.attachmentIds && a.attachmentIds.length) {
@@ -2230,6 +2367,183 @@ function exportBibliography() {
   a.click();
 }
 
+/* ============ BACKUP / RESTAURAÇÃO ============ */
+function renderBackupStats() {
+  var el = document.getElementById('backupStats');
+  if (!el) return;
+  var totalAtt = 0;
+  for (var i = 0; i < state.articles.length; i++) {
+    if (state.articles[i].attachmentIds) totalAtt += state.articles[i].attachmentIds.length;
+  }
+  el.innerHTML =
+    '<div class="backup-stat"><strong>' + state.articles.length + '</strong><span>Artigos</span></div>' +
+    '<div class="backup-stat"><strong>' + state.links.length + '</strong><span>Links</span></div>' +
+    '<div class="backup-stat"><strong>' + state.notes.length + '</strong><span>Anotações</span></div>' +
+    '<div class="backup-stat"><strong>' + totalAtt + '</strong><span>Anexos</span></div>';
+}
+
+function exportBackup() {
+  var btn = event && event.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'Gerando...'; }
+
+  dbAll().then(function (allAtts) {
+    var backup = {
+      version: 1,
+      app: 'DataHub TCC',
+      exportedAt: new Date().toISOString(),
+      theme: localStorage.getItem('dh_theme') || 'light',
+      articles: state.articles,
+      links: state.links,
+      notes: state.notes,
+      attachments: allAtts
+    };
+    var json = JSON.stringify(backup);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var ts = new Date();
+    var stamp = ts.getFullYear() + '-' +
+      String(ts.getMonth() + 1).padStart(2, '0') + '-' +
+      String(ts.getDate()).padStart(2, '0') + '_' +
+      String(ts.getHours()).padStart(2, '0') + 'h' +
+      String(ts.getMinutes()).padStart(2, '0');
+    a.href = url;
+    a.download = 'datahub_backup_' + stamp + '.json';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+    if (btn) { btn.disabled = false; btn.textContent = 'Exportar .json'; }
+  }).catch(function (e) {
+    console.error(e);
+    alert('Erro ao gerar backup: ' + (e.message || e));
+    if (btn) { btn.disabled = false; btn.textContent = 'Exportar .json'; }
+  });
+}
+
+function handleBackupFile(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data || !data.articles) throw new Error('Arquivo inválido.');
+      pendingBackup = data;
+
+      var info = 'Backup gerado em ' + fmtDate(data.exportedAt) +
+        '. Contém ' + (data.articles || []).length + ' artigos, ' +
+        (data.links || []).length + ' links, ' +
+        (data.notes || []).length + ' anotações e ' +
+        (data.attachments || []).length + ' anexos.';
+      document.getElementById('importBackupInfo').innerHTML = '<strong>Arquivo carregado</strong>' + info;
+      document.getElementById('importBackupModal').classList.add('active');
+    } catch (err) {
+      alert('Não foi possível ler o arquivo: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function closeImportBackup() {
+  document.getElementById('importBackupModal').classList.remove('active');
+  pendingBackup = null;
+  document.getElementById('backupFileInput').value = '';
+  document.getElementById('importProgress').classList.remove('active');
+}
+
+function confirmImportBackup() {
+  if (!pendingBackup) return;
+  var mode = document.querySelector('input[name="importMode"]:checked').value;
+  var progress = document.getElementById('importProgress');
+  progress.classList.add('active');
+  progress.textContent = 'Processando backup...';
+
+  var work = Promise.resolve();
+
+  if (mode === 'replace') {
+    // Limpa tudo
+    work = work.then(function () {
+      progress.textContent = 'Limpando dados antigos...';
+      return dbClear();
+    }).then(function () {
+      state.articles = [];
+      state.links = [];
+      state.notes = [];
+    });
+  }
+
+  work.then(function () {
+    progress.textContent = 'Importando anexos...';
+    var atts = pendingBackup.attachments || [];
+    return atts.reduce(function (chain, att) {
+      return chain.then(function () { return dbPut(att); });
+    }, Promise.resolve());
+  }).then(function () {
+    progress.textContent = 'Importando artigos, links e anotações...';
+
+    // Mapear artigos por chave única (título + autor)
+    function keyArticle(a) { return (a.title || '') + '|' + (a.author || ''); }
+    var existingArt = {};
+    for (var i = 0; i < state.articles.length; i++) existingArt[keyArticle(state.articles[i])] = true;
+
+    if (mode === 'merge') {
+      var newArts = pendingBackup.articles || [];
+      for (var j = 0; j < newArts.length; j++) {
+        var a = newArts[j];
+        if (!existingArt[keyArticle(a)]) state.articles.push(a);
+      }
+      var newLinks = pendingBackup.links || [];
+      var existingLink = {};
+      for (var k = 0; k < state.links.length; k++) existingLink[state.links[k].url] = true;
+      for (var l = 0; l < newLinks.length; l++) {
+        if (!existingLink[newLinks[l].url]) state.links.push(newLinks[l]);
+      }
+      var newNotes = pendingBackup.notes || [];
+      var existingNote = {};
+      for (var m = 0; m < state.notes.length; m++) existingNote[state.notes[m].title + '|' + state.notes[m].date] = true;
+      for (var n = 0; n < newNotes.length; n++) {
+        var kk = newNotes[n].title + '|' + newNotes[n].date;
+        if (!existingNote[kk]) state.notes.push(newNotes[n]);
+      }
+    } else {
+      state.articles = pendingBackup.articles || [];
+      state.links = pendingBackup.links || [];
+      state.notes = pendingBackup.notes || [];
+    }
+
+    persist();
+
+    if (pendingBackup.theme) {
+      document.documentElement.setAttribute('data-theme', pendingBackup.theme);
+      localStorage.setItem('dh_theme', pendingBackup.theme);
+    }
+
+    progress.textContent = 'Concluído!';
+    setTimeout(function () {
+      closeImportBackup();
+      renderAll();
+      alert('Backup importado com sucesso!');
+    }, 400);
+  }).catch(function (e) {
+    console.error(e);
+    progress.textContent = 'Erro: ' + (e.message || e);
+  });
+}
+
+function wipeAllData() {
+  if (!confirm('Isso apagará TODOS os artigos, links, anotações e anexos deste navegador. Continuar?')) return;
+  if (!confirm('Tem certeza? Essa ação é irreversível. Faça um backup antes se ainda não fez.')) return;
+
+  dbClear().then(function () {
+    state.articles = [];
+    state.links = [];
+    state.notes = [];
+    persist();
+    renderAll();
+    alert('Todos os dados foram apagados.');
+  }).catch(function (e) {
+    alert('Erro ao apagar: ' + (e.message || e));
+  });
+}
+
 /* ============ RENDER ALL ============ */
 function renderAll() {
   try { renderArticles(); } catch (e) { console.error(e); }
@@ -2240,11 +2554,11 @@ function renderAll() {
   try { renderImportHistory(); } catch (e) { console.error(e); }
   try { generateBibliography(); } catch (e) { console.error(e); }
   try { renderDrive(); } catch (e) { console.error(e); }
+  try { renderBackupStats(); } catch (e) { console.error(e); }
 }
 
 /* ============ INICIALIZAÇÃO ============ */
 function init() {
-  // Toggle de tema
   var tt = document.getElementById('themeToggle');
   if (tt) {
     tt.addEventListener('click', function () {
@@ -2255,7 +2569,6 @@ function init() {
     });
   }
 
-  // Navegação
   var nav = document.getElementById('mainNav');
   if (nav) {
     nav.addEventListener('click', function (e) {
@@ -2270,7 +2583,6 @@ function init() {
     });
   }
 
-  // Avatar
   var ui = document.getElementById('userName');
   var av = document.getElementById('userAvatar');
   if (ui && av) {
@@ -2280,7 +2592,6 @@ function init() {
     });
   }
 
-  // Fechar modais ao clicar fora
   var overlays = document.querySelectorAll('.overlay');
   for (var i = 0; i < overlays.length; i++) {
     overlays[i].addEventListener('click', function (e) {
@@ -2288,7 +2599,6 @@ function init() {
     });
   }
 
-  // Esc fecha
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       var act = document.querySelectorAll('.overlay.active');
@@ -2296,16 +2606,20 @@ function init() {
     }
   });
 
-  // File input no Importar
   var fi1 = document.getElementById('fileInputImport');
   if (fi1) fi1.addEventListener('change', function (e) { addFiles('import', e.target.files); e.target.value = ''; });
-  // File input no modal de artigo
   var fi2 = document.getElementById('fileInputModal');
   if (fi2) fi2.addEventListener('change', function (e) { addFiles('modal', e.target.files); e.target.value = ''; });
 
-  // Drop zones
   setupDropZone('dropZoneImport', 'import');
   setupDropZone('dropZoneModal', 'modal');
+
+  var backupInput = document.getElementById('backupFileInput');
+  if (backupInput) {
+    backupInput.addEventListener('change', function (e) {
+      if (e.target.files && e.target.files[0]) handleBackupFile(e.target.files[0]);
+    });
+  }
 
   renderAll();
 }
@@ -2331,7 +2645,6 @@ function setupDropZone(zoneId, scope) {
   });
 }
 
-// Expõe funções para handlers inline
 window.showView = showView;
 window.openArticleModal = openArticleModal;
 window.closeArticleModal = closeArticleModal;
@@ -2356,6 +2669,10 @@ window.removePendingAttachment = removePendingAttachment;
 window.removeEditingAttachment = removeEditingAttachment;
 window.deleteAttachment = deleteAttachment;
 window.downloadAllAttachments = downloadAllAttachments;
+window.exportBackup = exportBackup;
+window.closeImportBackup = closeImportBackup;
+window.confirmImportBackup = confirmImportBackup;
+window.wipeAllData = wipeAllData;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
